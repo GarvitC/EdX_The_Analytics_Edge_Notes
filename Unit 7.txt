@@ -1,0 +1,173 @@
+********************************** Unit-7: Visualization ************************************
+
+1. Visualization is mapping of data properties to visual properties - Data properties are usually numerical 
+    or categorical like mean, min, max, etc.; Visual properties can be (x,y) coordinates, colors, shapes, etc.
+    
+2. In R - ggplot2 package is used for visualization
+
+3. In base R, graphics is composed of simple elements like points/lines adding elements to the existing plots 
+    is difficult and each mapping of data properties to visual properties is its own special case; whereas in 
+    ggplot, mapping of data properties to visual properties is done by adding layers to the plot
+    
+4. Grammar of Graphics in ggplot - at least 3 elements:
+    - Data, in a data frame
+    - Aesthetic mapping describing how variables in data frame are mapped to graphical properties like colour,
+        shape, scale, axes, etc.
+    - Geometric objects like points, lines, bars, boxplots, etc.
+    
+5. Use package "ggplot2" in R
+
+6. Scatter plot - scatter = ggplot(<dataset_name>, aes(x = col1, y = col2))
+                - scatter + geom_point()
+    
+7. Line plot - scatter + geom_line()
+
+8. Adding graphic properties - scatter + geom_point(color="blue", size=3, shape=17) - Plot blue triangles,
+    shape=8 - stars
+    
+9. To add title, at the end add "+ ggtitle(<Title>)"
+
+10. Store the plot to a variable, then to save it as a pdf:
+    - pdf("<file_name>.pdf")
+    - print(<plot_variable>)
+    - dev.off()
+    This will save the plot to a pdf file in the working directory
+    
+11. To add colour to the plot according to another variable, add it to the aesthetics
+    - ggplot(<dataset_name>, aes(x=col1, y=col2, color=col3)) + geom_point()
+    In case the variable is not categorical, the colour gradient is added
+    
+12. Add regression line to the plot - "stat_smooth(method="lm", level=0.99, color="red")"; "level" option 
+    specifies the confidence interval which by default if 0.95; to remove the confidence lines, give the 
+    option "se=FALSE" instead of "level"
+    
+13. To better distinguish the colours, use "scale_color_brewer(palette="Dark2")" option right after 
+    geom_point()
+ 
+14. Heatmaps - Visualize data using three attributes, x and y axes with third attribute being shades
+    of colours
+    
+15. The axes of heatmaps can be categorical or continuous and can be combined with geographical map
+
+16. To convert the date field into a valid format, use strptime():
+    strptime(<dataset_name>$<date_col>, format="%m/%d/%y %H:%M"); After this, the column can be used to: 
+    - Get the weekday - weekdays(<dataset_name>$<date_col>)
+    - Get the hour - <<dataset_name>$<date_col>$hour>
+    
+17. To group all data in one line - geom_line(aes(group=1), linetype=2, alpha=0.3), in order to plot a 
+    categorical variable as a line where each category has only one value, "linetype=2" makes the line
+    dashed and alpha=0.3 makes it lighter 
+
+18. To order a variable values - factor(<dataset_name>$col1, ordered=TRUE, levels=c("..", "..", ...))
+    The "levels" option sets the order for the variable values as entered in "c()" function
+    
+19. Add the x and y axes labels by adding xlab("...") and ylab("...") as layers to the plotting step
+
+20. Use "as.data.frame(table(<dataset_name>$col1))" to convert the result of table() function to a data frame
+    to pass it further to ggplot() function
+    
+21. Use table() function to create the data to pass to ggplot() function with the required x and y axes
+
+22. To convert a factor variable to numeric, use as.numeric(as.character(<dataset_name>$col1))
+
+23. To plot multiple lines for values of a categorical variable, put the column in geom_line(aes(group=col1))
+    and to add colour accordingly add "color=col1" option too along with "size=2" to increase the thickness
+    of the lines
+
+24. For the heatmap, use aes(x=col1, y=col2) in ggplot() function, where both x and y should correspond to a 
+    categorical variables required and use "geom_tile(aes(fill=col3))" to have a colour corresponding to the 
+    required column values
+    
+25. To rename the legend, change the colour scheme, and get rid of an axis label add to plotting command:
+    + scale_fill_gradient(name="...", low="White", high="red") + theme(axis.title.y = element_blank())
+    
+26. To get the geographical map of a location, packages "maps" and "ggmap" need to be loaded into R, then
+    use "<location_map> = get_map(location="chicago", zoom=11)" to get the map for a location and view it 
+    using "ggmap(<location_map>)"
+    
+27. To mark some points (from m to n index range) on the map - ggmap(<location_map>) + 
+    geom_point(data=<dataset_name>[m:n], aes(x=col1, y=col2)), col1 and col2 would correspond to Longitude and 
+    Latitude values to mark the locations on the map
+    
+28. Use table() function to calculate the values for each point in the Longitude-Latitude grid and convert it 
+    to the data frame using as.data.frame() function, also convert the Latitude and Longitude values from factor
+    to numeric using the "as.numeric(as.character(<dataset_name>$col1))" function call on both
+    
+29. To plot the values of a column on the map corresponding to the grid points:
+    ggmap(<location_map>) + geom_point(data=<dataset_name>, 
+                                        aes(x=<Longitude_col>, y=<Latitude_col>, color=col1, size=col1))
+
+30. To get a heatmap for the above information:
+    ggmap(<location_map>) + geom_point(data=<dataset_name>, 
+                                        aes(x=<Longitude_col>, y=<Latitude_col>, alpha=col1), fill="red")
+    - "alpha" option specifies the parameter according to which the colour will vary and "fill" gives the colour
+    scheme
+  
+31. To get pre-stored states map for USA: Map = map_data("state")
+    - ggplot(Map, aes(x=long, y=lat, group=group)) + geom_polygon(fill="white", color="black")
+    
+32. Join two datasets based on a unique identifier common in both datasets:
+    - merge(<dataset1>, <dataset2>, by=<unique_id>)
+    
+33. Get a heatmap for the merged data with a legend: ggplot(Map, aes(x=long, y=lat, group=group, fill=col1)) + 
+                                                    geom_polygon(fill="white", color="black") + 
+                                                    scale_fill_gradient(low="black", high="red", guide="legend")
+    
+34. To remove outliers - scale_fill_gradient(low="black", high="red", guide="legend", limits=c(m,n))
+    - "limits=c(m,n)" option limits the range in the plot to (m,n)
+
+35. For bar plot - geom_bar(stat="identity"), "stat=identity" means use the value of y-variable as it is, there
+    are other options for bar height in the geom_bar() function
+
+36. Adding labels - geom_text(aes(label=col1))
+
+37. To reorder the x-axis from alphabetic order:
+    <dataset_name> = transform(<dataset_name>, col1=reorder(col1, -col2)) - This reorders the col1 according to 
+    descending values of col2
+    
+38. Formatting the bar plot:
+    - geom_bar(stat="identity", fill="dark blue"), to change bar fill colour
+    - geom_text(aes(label=col1), vjust=-0.4), to move the text label up
+    - theme(axis.title.x = element_blank(), axis.text.x = element_text(angle=45, hjust=1)), to hide x axis label
+        and rotate the x axis marks by 45 degree angle
+        
+39. To view first few rows - head(<dataset_name>)
+
+40. Replace NAs by zeros - <dataset_name>[is.na(<dataset_name>)] = 0
+
+41. For world map data - map_data("world")
+
+42. Merge the map data with dataset required on one common field and use geom_polygon() to make the map:
+    - <merged_data> = merge(<dataset1>, <dataset2>, by.x="col1", by.y="col2")
+    - For world map, an option of projection is there - coord_map("mercator"), for 2-D map; 
+                                                        coord_map("ortho", orientation=c(20,30,0)), 3-D projection
+                                                        with orientation of 20 deg lat and 30 deg long
+    - Order of countries in the world map data might get rearranged after merging, for restoring the order to 
+        allow right map plotting - <merged_map_data> = <merged_map_data>[order(<merged_map_data>$group, 
+                                                                        <meged_map_data>$order), ]
+    - To fill the map according to a column, geom_polygon(aes(fill=col1), color="<boundary_colour>");
+        use scale_fill_gradient() option to change the colour gradient
+   
+43. Use "reshape2" package to reshape the data for plotting - melt(<dataset_name>, id="col1")
+
+44. To view over the year change, line plot gives better idea, but within a year, a stacked chart is more useful
+    to see the percentage share among the categories
+    
+45. Create histograms - geom_histogram(binwidth=k), default binwidth is 30
+
+46. Adding another dimension to histogram (Faceting) - geom_histogram(binwidth=k, color="<outline_color>") + 
+                                            facet_grid(<binary_col>~.) (for horizontally overlayed histograms)
+                                            "OR" facet_grid(.~<binary_col>) (side by side histograms)
+    
+    
+47. The dimension to be added can be added as a "fill" option in aesthetics of the histogram, this creates a 
+    single stacked histogram
+
+48. Colour blind friendly palette - colorPalette = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", 
+                                                    "#0072B2", "#D55E00", "#CC79A7")
+
+49. Using the palette - scale_fill_manual(values=colorPalette)
+
+50. Adding options for overlaying two histograms with semi transparent fill:
+    - geom_histogram(binwidth=k, position="identity", alpha=0.5), for keeping the position as it is,
+        preventing the stacking of values
