@@ -1,0 +1,156 @@
+********************************** Unit-6: Clustering ************************************
+
+1. Recommendation system - Giving the users a recommendation based on their interests. (Netflix discussion)
+
+2. Collaborative Filtering - Recommend using the ratings/liking of the users with similar ratings/liking. 
+    For Netflix case, it does not use the information about the movie itself, just the ratings from the users
+        - Can suggest complex items without knowing the nature of those items
+        - Requires a lot of data about the user for good accuracy
+        - A lot of items -  needs a lot of computing power
+    
+3. Content Filtering - Recommend based on the content of the previous ratings/liking by the same user.
+    e.g. In Netflix case, use the already rated movie's director, genre, actor for recommendation to the user
+        - Needs very little data to get started
+        - Limited scope - only recommend what user has already seen
+
+4. For Netflix case, both Collaborative and Content Filtering are used - Identify users with similar 
+    preferences based on the collaborative filtering and then use the content filtering to find a movie that
+    matches the content of a movie each of the identified users liked and recommend it to them even if 
+    none have seen it before.
+    
+5. The hybrid recommendation system is better as the content filtering alone, allows only to recommend to
+    a single user and collaborative filtering alone, allows to recommend a movie only if one of the users
+    has seen it before. Thus, the hybrid approach is more efficient and flexible
+    
+6. Clustering 
+    - Unsupervised Learning
+    - Segment data into similar groups instead of prediction
+    - Predictive modelling can be done for each group if the dataset is large enough, this improves the
+        accuracy of the predictions in many cases
+    
+7. Clustering in Netflix case is used for content filtering to systematically find groups of movies with 
+    similar sets of genres
+
+8. Some algorithms for clustering - Hierarchical and K-means
+
+9. Clustering requires to find how similar the data points are:
+    - Need to define distance between two data points - "Euclidean distance" between points i and j:
+        d(i,j) = sqrt((xi1-xj1)^2 + (xi2-xj2)^2 +....+ (xik-xjk)^2),  k - number of independent variables
+    - Other distance measures - Manhattan Distance(sum of absolute values instead of squares); Maximum
+                                coordinate distance(Only consider measurement for which data points deviate
+                                the most)
+    - Distance between clusters - Minimum distance, i.e. distance between two points that are closest 
+        together; Maximum distance, i.e. distance between two points that are the farthest; Centroid distance,
+        i.e. distance between centroids (average of all data points) of clusters
+    
+    - Customary to normalize first before calculating the distance as the scale of variables highly 
+        influences the distance, e.g. Revenue and age(in years)
+    
+10. Hierarchical clustering
+    - Start with each data point in its own cluster
+    - Combine two nearest clusters iteratively till all the points are in one cluster (Decide using the 
+        distance measures like Euclidean or Manhattan)
+    - Use a "Cluster Dendrogram" to decide how many clusters are required in the model, height of the 
+        vertical lines represent the distance between the clusters
+    - Drawing a horizontal line using a point across a dendrogram will give the number of clusters at 
+        that point as equal to the number of vertical lines the horizontal one crosses
+    - The horizontal line drawn with the maximum vertical movability such that the resulting number of 
+        clusters doesn't change(i.e. it doesn't cross any horizontal line in the dendrogram) due to the 
+        movement is better choice for picking the number of clusters; but number of clusters are also 
+        application dependent
+    - Meaningful clusters - Check the statistics (mean, min, max, etc.) for each cluster and each variable
+        and see if clusters have a common feature that was not used in clustering like an outcome variable
+ 
+11. Read data from a text file - read.table("<dataset_name.txt>", header=FALSE, sep="|", quote="\"")
+
+12. Add column names to data using - colnames(<dataset>) = c("col1_name", "col2_name", "col3_name", .....)
+
+13. Remove undesired columns - <dataset_name>$col1 = NULL
+
+14. Remove duplicate entries - <dataset_name> = unique(<dataset_name>)
+
+15. Compute Euclidean distance - distances = dist(<dataset_name>[m:n], method="euclidean"), [m:n] specifies
+    the variable range for which clustering is to be done
+
+16. Cluster dendrogram - <cluster_name> = hclust(distances, method="ward.D")
+                       - plot(<cluster_name>)
+
+17. Cluster Groups formed by using the dendrogram to decide the number of groups required:
+    <cluster_groups> = cutree(<cluster_name>, k=10) - for 10 groups
+    
+18. METHOD 1 - To see the average distribution of a column across the clusters use "tapply()"
+    tapply(<dataset_name>$col1, <cluster_groups>, mean) - Repeat for all the columns to know each one's 
+    distribution
+
+19. To look up an item in the cluster groups - Use the row number of the item from dataset - 
+    <cluster_groups>[<row_num>]
+
+20. <cluster_groups> will have the items and their corresponding cluster group number stored, using
+    subset(<dataset_name>, <cluster_groups> == n), get the items in nth cluster group
+
+21. METHOD 2 - To compute mean value of each column/variable for each of the clusters:
+    colMeans(subset(<dataset_name>[m:n], <cluster_groups>==1)) - Repeat for each cluster group
+
+22. METHOD 3 - Use spl = split(<dataset_name>[m:n], <cluster_groups>)
+             - colMeans(spl[[1]]) gives the mean value of all the columns for cluster 1
+             - lapply(spl, colMeans) computes the mean value for all columns/variables for all the 
+                cluster groups
+
+23. k-Means Clustering  - Specify desired number of clusters
+                        - Randomly assign each data point to a cluster
+                        - Compute the cluster centroids
+                        - Re-assign each point to the closest cluster centroid
+                        - Re-compute cluster centroids
+                        - Repeat last two steps until no improvement
+                        
+24. IMAGE SEGMENTATION RECITATION - using hierarchical clustering to segment grayscale images stored 
+    in the form of csv files as intensity matrix
+        - Read the image csv files as "read.csv(<dataset_name>, header=FALSE)"
+        - The image information needs to be converted first to matrix form and then to vector form 
+            containing all intensity values (from 0 to 1 in case of grayscale) for using the clustering 
+            algorithm - using "as.matrix()" and "as.vector()"
+        - Converting the data directly to vector form yields similar result as when converting it to
+            matrix, thus, it requires to be converted to matrix form first to get the right vector form
+        - Create distance matrix for hierarchical clustering containing distance between every two intensity
+            value for the vector - dist(<vector_name>, method="euclidean")
+        - <cluster_name> = hclust(distance, method="ward.D") - "ward.D" is a minimum variance method which 
+            tries to find compact spherical clusters, minimizing the variance within cluster and distances
+            between clusters
+        - Plot the cluster dendrogram - plot(<cluster_name>)
+        - Visualize the clusters in the dendrogram plot - rect.hclust(<cluster_name>, k=3, border="red"),
+            k is the required number of clusters
+        - Split the vector into required clusters - <cluster_groups> = cutree(<cluster_name>, k=3)
+        - <cluster_groups> is a vector that assigns each value in the given vector to a cluster
+        - Average intensity values for each cluster - tapply(<vector_name>, <cluster_groups>, mean)
+        - To look at the image, convert the segmented image to matrix form from vector form, then use
+            image() to view it - dim(<cluster_groups>) = c(m,n), for m*n size image
+                               - image(<cluster_groups>, axes=FALSE)
+        - To look at the original grayscale image - image(as.matrix(<dataset_name>), axes=FALSE, 
+                                                            col = grey(seq(0,1,length=256)))
+                                                               [or seq(0,1,1/256)]
+
+25. For high resolution images/higher number of data points, hierarchical clustering fails while compute
+    distances for every two points; k-Means clustering - kmc=kmeans(<vector_name>, centers=k, iter.max=1000),
+    k is the pre decided number of clusters depending upon the application and max iterations need to
+    be set as it is an iterative algorithm and can go on for long, also use set.seed() due to random
+    assignment involved in the beginning
+    
+26. To get the cluster assignment vector - use <cluster_groups> = kmc$cluster and for mean intensities,
+    kmc$centers, for size of the clusters, kmc$size
+    
+27. To see the segmented image - dim(<cluster_groups>) = c(m,n), for m*n size image
+                               - image(<cluster_groups>, axes=FALSE, col=rainbow(k))
+                               
+28. Apply clustering result of one image(training set) on another(test set) - install.packages("flexclust")
+   
+29. Flexclust contains object class KCCA(K Centroids Cluster Analysis), convert information from cluster
+    analysis to an object of class KCCA to use the predict() function on the test set vector
+
+30. Convert training set clustering result to KCCA object kmc.kcca = as.kcca(kmc, <vector_name>)
+
+31. Test - <cluster_groups_test> = predict(kmc.kcca, newdata=<test_image_data>), convert the result to 
+    matrix form using "dim()" and view the result using "image()"
+    
+32. SCREE PLOTS (Video 5) and COMPARISON OF METHODS (Last Video)
+
+
