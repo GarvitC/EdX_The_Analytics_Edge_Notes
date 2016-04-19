@@ -1,0 +1,60 @@
+********************************** Unit-8: Linear Optimization ************************************
+
+1. Optimization - Airline Example:
+    - R: Regular seats; D: Discounted seats
+    - Maximize Total revenue: (R Fare)*R + (D Fare)*D
+        Subject to - Seats sold can't exceed capacity: R + D <= (Total Capacity)
+                   - Seats sold can't be negative: R <= 0; D<=0
+                   - Seats sold can't exceed demand: R <= (R Demand); D <= (D Demand)
+    
+2. Use Excel Solver - (MANAGE ADD-INS IF SOLVER NOT IN ANALYSIS TAB OF DATA)
+
+3. Sensitivity Analysis: Understanding how the solution changes when data changes (like in case of changes in
+    marketing decisions - Increase in marketing budget leads to increased demands, but in some cases the decrease
+    in demand for a particular category of product may not affect the revenue; the marketing budget can be lowered
+    in such cases)
+    - Shadow Price: Marginal revenue gained by increasing the demand by one unit; if the shadow price for a 
+        category is zero, it may not affect the revenue even if the demand decreases
+    - For a category with higher marginal revenue, it is beneficial to increase the demands by altering the
+        the marketing budget
+    
+4. Formulate the problem in form of a plot using the constraints and then use the curve to find the optimal
+    solution and effects of changes during sensitivity analysis on the optimal solution 
+
+************ LECTURE SERIES VIDEOS FOR AIRLINE MANAGEMENT SYSTEM, RADIATION THERAPY *******************
+
+5. Google AdWords Recitation
+    - Bids placed by advertisers for different queries in an auction
+    - Price per click decided by Google for each advertiser and each query based on bids and quality score
+        (fit of advertiser and ad to the queries)
+    - Google then decides how often to display each ad for each query
+    
+6. According to the budget given by advertiser and the price per click (PPC - how much advertiser pays Google 
+    when user clicks ad for that query) decided by Google, the budget is depleted by PPC amount on each click
+    by user on that ad
+    
+7. CTR - Click Through Rate: Probability that a user clicks on the advertiser's ad (clicks per user), this is
+    decided for one query and one advertiser e.g. for a CTR of 0.08 and 50 users, we will have 4 (50*0.08) users 
+    clicking on the ad out of 50
+
+8. Average Price per Display - Average amount that advertiser pays each time its ad is shown - PPC * CTR
+
+9. Google has estimate of how many times a query will be requested in a given day
+
+10. Problem: How may times to display each ad for each query to maximize revenue
+    Objective: Maximize Revenue
+    Constraints: 1) Average amount paid by each advertiser can't exceed the budget
+                2) Total ads for given query can't exceed estimated number of requests for that query
+                
+11. Modelling: 1) Decision Variables - One for each advertiser and each query
+                                        (No. of advertisers * No. of Queries)
+               2) Revenue to Google - Average price per display * corresponding decision variable
+               3) Constraints - Price paid by one advertiser < Budget of that advertiser
+                              - For each query, sum of ads displayed < Estimated number of requests for that query
+
+                              
+************ LECTURE SERIES VIDEOS FOR MODELLING IN RECITATION (NORMAL AND GREEDY APPROACH) *******************
+
+
+
+
