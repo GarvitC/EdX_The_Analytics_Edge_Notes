@@ -1,0 +1,141 @@
+********************************** Unit-4: Trees ************************************
+
+1. CART - Classification and Regression Trees: Binary output, but Logistic Regression is not used since the
+    its models are not interpretable and the coefficients do not give a simple explanation of how the 
+    decision is made, they just give the effect of variables
+    
+2. CART - Build a tree by splitting the independent variables, follow the splits for a new case to the end to
+    predict the most frequent outcome. Does not assume a linear model and is interpretable
+    
+3. Trees have "Yes" to the left and "No" to the right and start always at top of the tree
+
+4. Control the number of splits - One way: Setting lower bound for the number of points in each subset;
+    In R - "minbucket" parameter does this - Smaller value implies more splits, overfitting if too small,
+    too large will give simple model with poor accuracy
+
+5. Take percent of outcome types in each bucket, then set a threshold as in Logistic Regression - threshold 
+    of 0.5 corresponds to predicting the outcome to be the most frequent type in that subset
+    
+6. Vary the threshold to compute ROC curve and get an auc value
+
+7. Install "rpart" and "rpart.plot" packages to build a CART model
+ 
+8. Build a model using the rpart() function, e.g. Tree-model = rpart(DV~IV1+IV2+...+IVn, data=<Train-data>, 
+    method="class", minbucket=k) - method="class" tells the function to build a classification tree instead 
+    of a regression tree and minbucket limits the tree to avoid overfitting
+
+9. Plot the tree created by rpart() using the prp() function - prp(<Tree-model>)
+    
+10. prp() will abbreviate the values of an IV to make them uniquely identifiable
+
+11. Predict the values on the test set - Pred = predict(<Tree-model>, newdata=<Test-data>, type="class")
+
+12. Build a confusion matrix to find the accuracy and compare against the baseline accuracy,
+    table(<Test-data$DV>, Pred)
+    
+13. Generate the ROC curve using the ROCR package's functions - prediction() and performance()
+    The prediction() function requires the probabilities, to get the probabilities use predict() function
+    to get the probabilities for the outcome variable to be 1 or 0 as two columns, 
+     - PredROC = predict(<Tree-model>, newdata=<Test-data>)
+     - Pred1 = prediction(PredROC[,2], <Test-data$DV>)
+     - Perf = performance(Pred1, "tpr", "fpr")
+     - plot(Perf)
+
+14. Random Forest is a method to improve the prediction accuracy of CART by building many CART trees, thus 
+    reducing the interpretability of the model, so its a trade-off between accuracy and interpretability,
+    for a new observation, each tree "votes" on the outcome and the outcome with the majority votes is 
+    selected
+    
+15. Random Forest allows each tree to split on only a random subset of the variables, each tree is built
+    from "bagged"/"bootstrapped" sample of the data
+    
+16. Observations for the trees are selected randomly with replacement, e.g. Original data: 1 2 3 4 5
+    Data for 1st Tree: 2 2 1 3 4
+    Data for 1st Tree: 5 1 5 3 2 .........
+    Thus, we get a forest of trees, each with a different set of variables and different samples of data
+    
+17. Parameters - Minimum number of observations in a subset, "nodesize" parameter in R, smaller value 
+                    takes longer
+               - Number of trees, "ntree" parameter in R, small value may lead to missed observations
+                    in the bagging procedure, larger number of trees take longer to build
+    
+18. Random Forest is not as dependent on parameters as CART
+
+19. randomForest() function does not have a "method" argument, thus it runs regression instead of 
+    classification by default, to use for classification problem, the dependent variable should be a
+    factor - convert using "as.factor()", if needed
+    
+20. Check the accuracy using the confusion matrix built by the predictions and the actual DV value from 
+    the test set - table(<Test-data$DV>, predict(<Tree-model>, newdata=<Test-data>))
+
+21. The "minbucket" parameter affects the out of sample accuracy of the CART model, setting this parameter 
+    to get the best testing set accuracy would not be right as it defeats the purpose of test set being 
+    the data that the model has never seen
+    
+22. Instead, to set "minbucket", use K-fold Cross Validation - Split the training set into K pieces/folds
+    and build the model using (K-1) folds and compute predictions on the remaining fold (validation set) 
+    for each candidate parameter value - Repeat this for each of the K folds
+    
+23. The K-fold Cross Validation essentially builds multiple models (one for each fold) and then for each 
+    parameter value the accuracy can be computed - a graph of Accuracy v/s Parameter value is plotted for 
+    each fold - average the accuracy value over all the K models built - decide the parameter value from 
+    the graph (SEE CROSS VALIDATION VIDEO)    
+    
+24. When using Cross Validation in R, a parameter named "cp" (complexity parameter) is used instead of 
+    "minbucket" - cp is like adjusted R-squared/AIC as it measures trade-off between model complexity
+    and accuracy on the training set, smaller cp leads to bigger tree (might overfit) and if too large
+    the model might be too simple
+
+25. Set the number of folds in R - numFolds = trainControl(method="cv", number=<K>)
+    Pick possible value for "cp" - cpGrid = expand.grid(.cp=seq(0.01, 0.5, 0.01)), this will define the
+                                    cp values to test from 0.01 to 0.5 in increments of 0.01
+    Perform Cross Validation using "train()" function - cpVal = train(DV ~ IV1 + IV2 +...., data=<Train-data>,
+                                                                        method="rpart", trControl=numFolds, 
+                                                                        tuneGrid=cpGrid)
+
+26. Build a CART model using Cross Validation cp and predict for the Test data and build confusion matrix
+     - TreeModelCV = rpart(DV~IV1+IV2+...+IVn, data=<Train-data>, method="class", cp=cpVal)
+     - PredCV = predict(TreeModelCV, newdata=<Test-data>, type="class")
+     - table(<Test-data$DV>, PredCV)
+
+27. Create a (n*n) matrix in R - matrix(c(1,2,3,4,5,6,7,8,3,2,5,6,7), byrow=TRUE, nrow=n) 
+    "as.matrix()" to convert the table into matrix
+
+28. To use dissimilar error weights, create a Penalty matrix accordingly and pass it to the rpart() function 
+    while building the CART model - rpart(......, parms=list(loss=Penalty_Matrix))
+
+29. Find the Penalty error - sum(as.matrix(table(<Test-data$DV>, PredTest)*Penalty_Matrix))/nrow(<Test-data>)    
+    
+30. Trees can be used for regression, where the output at each leaf will be a number, these trees can capture
+    non-linearities which linear regression can't
+    
+31. "points(x, y, col="red", pch=19)" plots the point (x,y) in the given colour as a solid dot (due to pch=19)
+    on the existing plot, pch can be passed a character to plot it instead of a dot, e.g. pch="$" will plot
+    the points as "$"
+
+32. The linear regression model has a field called "fitted.values" - we can plot these values to see the
+    values fitted by the model - <LR_model$fitted.values>
+    
+33. Regression trees - rpart(DV~IV1+IV2+....+IVn, data=<Train-data>, minbucket=k), the tree leaves will give 
+    a number which is the average value in that bucket/leaf
+
+34. For regression tree, the fitted values can be found using the "predict()" function and points of interest 
+    can be plotted using the "points()" function
+    
+35. The tree can be plotted using the plot() function also and the splits can be added - plot(<Tree-model>),
+    text(<Tree-model>)
+    
+36. "abline()" function plots vertical and horizontal line on the existing plot
+
+37. RSS (Residual Sum of Squares) = sum((y(i) - f(x(i)))^2)
+    RSS is calculated at each leaf - While building a tree, the RSS needs to be minimized, but also the
+    complexity due to too many splits should also be penalized : 
+    Goal - Minimize(sum_across_all_leaves(RSS at each leaf)+lambda*S)
+    "S" is number of splits and "lambda" is the penalty, lambda value should be chosen to control the
+    trade off between complexity and the error reduction
+    
+38. cp = lambda/RSS(no splits) - RSS(no splits) is RSS for the tree with no splits, that is, simply the 
+    average of the data
+    
+39.     
+ 
