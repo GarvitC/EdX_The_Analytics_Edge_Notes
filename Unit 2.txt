@@ -1,0 +1,99 @@
+********************************** Unit-2: Linear regression ************************************
+
+1. Linear regression predicts an outcome(dependent variable) based on a set of independent variables
+
+2. One variable LR model: y(i) = a0 + a1*x(i) + e(i) - for observation i, e(i) is the error term(residual)
+    e(i) = actual - prediction
+
+3. a0(intercept coefficient), a1(regression coefficient) - coefficients are best when the error term is small
+
+4. Measure of quality of line - SSE(sum of squared errors), it should be minimum,
+    SSE = e(1)^2+e(2)^2+.....+e(N)^2 (where N = # data points)
+
+5. SSE depends on N and is hard to understand, can be big for a large sample and units are ambiguous
+
+6. Root mean square error(RMSE) = sqrt(SSE/N), Normalized by N, and units are same as dependent variable
+
+7. R square - Error measure which compares the best model to a baseline model, "baseline model" does not 
+    use any variable, i.e. predicts same outcome regardless of independent variable, e.g. a constant line 
+    parallel to the x-axis
+	
+8. Sum of squared errors for baseline model is also called SST(Total sum of squares)
+
+9. R squared = 1 - SSE/SST, it captures value added by using the LR model, a value of 0 means no 
+    improvement over the baseline model and a value of 1 means a perfect predictive model
+    
+10. 0 <= SST; 0 <= SSE <= SST - The LR model will never be worse than the baseline model,
+    worst case SSE = SST (R=0), best case SSE = 0(R=1)
+ 
+11. R squared is unit less and universally interpretable, but hard to compare between the problems
+
+12. Multiple LR allows use of more than one independent variable: 
+    y(i) = a0 + a1*x1(i) + a2*x2(i) + ........ + ak*xk(i) + e(i), k is the number of independent variables
+
+13. Adding more variables improves the R squared, but diminishing returns as more and more are added
+
+14. All variables should not be used to avoid "overfitting" and also each new variable added requires
+    more data
+    
+15. Univariate LR model - function "lm(IV ~ DV, data = <dataset-name>)", 
+    e.g. model1 = lm(col1 ~ col2, data = <dataset-name>)
+
+16. The summary function on the model gives the details of the estimated value of the coefficients, 
+    R squared etc.
+    
+17. The adjusted R squared value accounts for the number of independent variables used relative 
+    to the number of data points. It will decrease on adding more independent variables which don't 
+    help the model; while the R squared value will always increase on adding more independent variables; 
+    Adjusted R square thus helps in deciding the usefulness of an added independent variable
+
+18. The error terms are stored in "model$residuals"; thus, SSE = sum(model$residuals^2)   
+    
+19. Adding more IVs to the model - use "+" sign between them, 
+    e.g. model = lm(IV ~ DV1 + DV2, data = <dataset-name>)
+    
+20. Summary output of the model: Estimate - The estimated value of a coefficient
+                                 Std. Error - Measure of how much a coefficient is likely to vary
+                                                from the estimated value
+                                 t value - Estimate/Std. Error, greater absolute value means more 
+                                            significance of the coefficients
+                                 Pr(>|t|) - Probability of the coefficient being 0; small if absolute
+                                            t value is large (preferable case)
+                                 Last col - Significant codes explained at bottom of output;
+                                            "***" is the highest level of corresponds to Pr<0.001
+                                            "**" corresponds to 0.001<Pr<0.01, etc. No stars at the
+                                            mean that the coefficient is not significant in the model
+
+21. Correlation is a measure of linear relationship between the variables, +1 to -1: sign gives direction
+    0 value for correlation means no correlation, absolute value of 1 shows high correlation
+    
+22. Correlation is computed using the function "cor(data$col1, data$col2)"; "cor(<dataset-name>)" gives
+    the correlation matrix
+
+23. Multi collinearity refers to the situation of high correlation between two dependent variables,
+    A high correlation between a dependent variable and an independent variable is, however, desirable
+    
+24. Removing all the insignificant variables at once can lead to loss of some important variable as
+    the problem might be caused by multi collinearity and one of the variable might help the model
+    after removing the (other) correlated one, choose what to remove intuitively sometimes
+    
+25. No definitive cut-off value for correlation, but an absolute value of 7 is typically taken as 
+    considerable
+    
+26. R squared value gives the accuracy of the model on the data that is used to build the model 
+    (training data), not on the prediction on new data (test data)
+    
+27. Accuracy of the model on test data is called "out of sample accuracy"
+
+28. Predict on new data - "predict(model, <test-dataset-name>)"
+
+29. Compute SSE, SST and R squared for predictions, e.g. SSE = sum((test_data$col1 - predicted_col1)^2), 
+    SST = sum((test_data$col1 - mean(train_data$col1))^2), R squared = 1 - SSE/SST
+    
+30. Model R squared will always increase or remain same on adding more variables but not necessarily 
+    Test R squared; more the data for test, better conclusion; Test R squared value can be negative since
+    the model can't do worse than baseline model on the training data but it can do so on the test data
+    
+31. ---------------------- DO : MONEYBALL DISCUSSION --------------
+    
+32. If a variable begins with a number, R puts 'X' in front of it, e.g. '2pts' becomes 'X2pts'
