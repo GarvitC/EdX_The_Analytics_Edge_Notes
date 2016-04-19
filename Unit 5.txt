@@ -1,0 +1,100 @@
+********************************** Unit-5: Text Analytics ************************************
+
+1. Natural language Processing (NLP) - Derive meaning from human language
+
+2. It is harder for computer to understand the ambiguity and context of the language
+
+3. Sentiment from twitter data - Need the dataset, publicly available through web scraping or using the 
+    special interface (API) provided by twitter
+    
+4. Creating an outcome variable for the tweets to be negative/positive, disagreement may be there - use
+    AMAZON MECHANICAL TURK (one of the options) which distributes the tasks online in small components
+    and people can sign up to perform the tasks, pay them some money - AMT servers act as broker
+    
+5. On an AMT task, people can label the tweet and score it on a scale to represent positive to negative,
+    fixed number of people label each tweet and the average score is recorded per tweet
+    
+6. A technique called "Bag of Words" helps in building a text analytics model with a simple approach,
+    counts the number of times each word that appears in the text and uses these counts as independent 
+    variables - one feature for each word, this is simple baseline used in NLP, although it can be 
+    improved by preprocessing the data
+    
+7. The inconsistencies in text data cause trouble for algorithms - Computers are literal
+    - The case sensitivity is an issue, can be done away with converting the whole text in a uniform case
+    - Problems with punctuations can be dealt with by removing everything that isn't a standard number 
+        or a letter, but sometimes the punctuations are meaningful like in web addresses, so the removal
+        should be tailored for a specific problem
+    - Remove "stop words" to reduce the size of data, like is, at, the, etc., as they are just meaningful 
+        in a sentence and are not likely to improve the machine learning prediction quality, however,
+        in combination, the stop words might mean something different, e.g. "Take That" != "Take"
+    - Stemming - algorithmic process to perform the reduction in words with different tenses but a 
+        common stem, e.g. argue, argued, arguing all could be represented by a common stem, "argu"
+        
+8. Ways for stemming:
+    - Build database of words and their stems, this  handles exceptions but won't handle new words
+    - A rule-based algorithm, e.g. remove if a word ends with "ed", "ing" or "ly", this handles new
+        words well but many exceptions (like "child" and "children" would be considered different)
+    - "Porter Stemmer" and similar have been written for many languages
+    - Machine learning - Train the algorithm to recognize the roots of words
+    
+9. For reading the text data correctly, use "read.csv("<csv_name>", strigsAsFactors=FALSE)"
+
+10. R needs the packages "tm" and "SnowballC" for the text analytics
+
+11. For pre processing the text data needs to be converted into corpus (a collection of documents) using
+    the "tm" package- corpus_data = Corpus(VectorSource(<data$text_field>))
+    
+12. Access the  first entry of the corpus as - corpus[[1]] 
+
+13. "tm_map()" function is used for the pre processing tasks:
+    - tm_map(<corpus_name>, tolower)
+*****************************************************************************************
+Run the following command immediately after converting all of the words to lowercase letters (it converts 
+all documents in the corpus to the PlainTextDocument type) - corpus = tm_map(corpus, PlainTextDocument)
+*****************************************************************************************
+    - tm_map(<corpus_name>, removePunctuation)
+    - tm_map(<corpus_name>, removeWords, c("<any_word(s)_to_be_excluded>", stopwords("english")))
+    - tm_map(<corpus_name>, stemDocument)
+    
+14. Access the stop words in R - stopwords("english")[1:n] gives the first n english stop words stored in R
+
+15. To count the word frequencies - freq = DocumentTextMatrix(corpus) : Rows are the documents and columns
+    the words whose count in each of the document is stored in the matrix form
+    
+16. To look at a part of the frequency matrix - inspect(<freqMatrix>[m:n, p:q])
+
+17. Find frequently occurring words - findFreqTerms(<freqMatrix>, lowfreq=<lower_bound_for_frequencies>)
+
+18. Large number of terms means more number of variables, thus takes longer to build models, also ratio of
+    independent variables to observations affects the generalization of the model, so the excess terms can
+    be removed before building the model:
+    - sparse = removeSparseTerms(<freqMatrix>, <Sparsity Threshold like 0.98>) - Keep terms that appear
+        in 2 percent or more of the documents (tweets)
+    
+19. Convert the sparse matrix into a data frame - SparseMatrix = as.data.frame(as.matrix(<sparse_data>))
+
+20. Convert variable names to make sure they are appropriate and do not start with number:
+    - colnames(<SparseMatrix_name>) = make.names(colnames(<SparseMatrix_name>))
+ 
+21. From the dataset, if the average score is given as column for each of the document then use it to 
+    find the negative/positive as per the interest area and store a factor corresponding to them in
+    a new field, e.g. <data$Negative> = as.factor(<data$Avg> <= -1)
+    
+22. Assign the Negative column created above in the sparse matrix as well: 
+    - <SparseMatrix_name$Negative> = <data$Negative>
+
+23. Split the data into training and testing data sets from the sparse matrix/dataframe
+
+24. Use CART to build the model using "rpart" library - <CART_model> = rpart(<data$DV> ~ ., 
+                                                                        data=<train_data>, method="class")
+    
+25. Use the <CART_model> to predict on the test set and build a confusion matrix with the predictions
+    to get the model accuracy and compare this with the simple baseline accuracy. The accuracy can be
+    improved by using cross validation (cp parameter)
+    
+26. Random Forest can also be used to build the model but will take significantly longer time to build
+    there are large number of independent variables in text analytics problems.    
+ 
+
+
+
